@@ -75,7 +75,7 @@ void ACMP302Character::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 
 	// Bind throw event
 	PlayerInputComponent->BindAction("Fire Staff", IE_Pressed, this, &ACMP302Character::OnThrow);
-	PlayerInputComponent->BindAction("Call Back Staff", IE_Pressed, this, &ACMP302Character::OnStaffCallBack);
+	//PlayerInputComponent->BindAction("Call Back Staff", IE_Pressed, this, &ACMP302Character::OnStaffCallBack);
 
 	//Bind launch events
 	PlayerInputComponent->BindAction("Staff Backwards", IE_Pressed, this, &ACMP302Character::OnStaffBackwards);
@@ -101,7 +101,6 @@ void ACMP302Character::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 void ACMP302Character::OnThrow()
 {
 	UWorld* const World = GetWorld();
-	UE_LOG(LogTemp, Warning, TEXT("Test"));
 	if (IsValid(SpawnedProjectile) || ProjectileClass == NULL || World == NULL) return;
 
 	// try and fire a projectile
@@ -118,6 +117,13 @@ void ACMP302Character::OnThrow()
 	//// spawn the projectile at the muzzle
 	//World->SpawnActor<ACMP302Projectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
 
+}
+
+void ACMP302Character::OnStaffCallBack()
+{
+	/*if (SpawnedProjectile == NULL) return;
+
+	SpawnedProjectile->Destroy();*/
 }
 
 void ACMP302Character::OnStaffForwards()
@@ -177,9 +183,6 @@ void ACMP302Character::OnStaffBackwards()
 	
 }
 
-void ACMP302Character::OnStaffCallBack()
-{
-}
 
 void ACMP302Character::OnCloud()
 {

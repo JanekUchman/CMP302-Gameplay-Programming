@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include <GameFramework/Character.h>
 #include "CMP302Projectile.generated.h"
 
 UCLASS(config=Game)
-class ACMP302Projectile : public AActor
+class ACMP302Projectile : public APawn
 {
 	GENERATED_BODY()
 
@@ -30,5 +30,9 @@ public:
 	FORCEINLINE class USphereComponent* GetCollisionComp() const { return CollisionComp; }
 	/** Returns ProjectileMovement subobject **/
 	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
+
+protected:
+	void OnStaffCallBack();
+	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 };
 
