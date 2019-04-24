@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "CMP302Projectile.h"
 #include "CMP302Character.generated.h"
+
 
 class UInputComponent;
 
@@ -21,29 +24,12 @@ class ACMP302Character : public ACharacter
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 	class USkeletalMeshComponent* FP_Gun;
 
-	/** Location on gun mesh where projectiles should spawn. */
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	class USceneComponent* FP_MuzzleLocation;
-
-	/** Gun mesh: VR view (attached to the VR controller directly, no arm, just the actual gun) */
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	class USkeletalMeshComponent* VR_Gun;
-
-	/** Location on VR gun mesh where projectiles should spawn. */
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	class USceneComponent* VR_MuzzleLocation;
 
 	/** First person camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FirstPersonCameraComponent;
 
-	/** Motion controller (right hand) */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UMotionControllerComponent* R_MotionController;
 
-	/** Motion controller (left hand) */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UMotionControllerComponent* L_MotionController;
 
 public:
 	ACMP302Character();
@@ -53,40 +39,48 @@ protected:
 
 public:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
+	UPROPERTY(EditAnywhere, Category=Camera)
 	float BaseTurnRate;
 
 	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
+	UPROPERTY(EditAnywhere,  Category=Camera)
 	float BaseLookUpRate;
 
-	/** Gun muzzle's offset from the characters location */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
-	FVector GunOffset;
+	/** The velocity to launch the character using the staff. */
+	UPROPERTY(EditAnywhere, Category = Staff)
+	float LaunchVelocity;
+
+	/** The length of the staff to search for surfaces. */
+	UPROPERTY(EditAnywhere, Category = Staff)
+	float StaffLength;
+
+	/** The offset for spawning the staff projectile. */
+	UPROPERTY(EditAnywhere, Category = Staff)
+	FVector StaffOffset;
+
+	/** Staff's offset from the characters location */
+	UPROPERTY(EditAnywhere, Category=Gameplay)
+	FVector StaffPosition;
 
 	/** Projectile class to spawn */
 	UPROPERTY(EditDefaultsOnly, Category=Projectile)
 	TSubclassOf<class ACMP302Projectile> ProjectileClass;
 
-	/** Sound to play each time we fire */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
-	class USoundBase* FireSound;
 
-	/** AnimMontage to play each time we fire */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-	class UAnimMontage* FireAnimation;
 
-	/** Whether to use motion controller location for aiming. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-	uint32 bUsingMotionControllers : 1;
 
 protected:
 	
 	/** Fires a projectile. */
-	void OnFire();
+	void OnThrow();
 
-	/** Resets HMD orientation and position in VR. */
-	void OnResetVR();
+	void OnStaffBackwards();
+
+	void OnStaffForwards();
+
+	void OnStaffCallBack();
+
+	void OnCloud();
 
 	/** Handles moving forward/backward */
 	void MoveForward(float Val);
@@ -106,31 +100,15 @@ protected:
 	 */
 	void LookUpAtRate(float Rate);
 
-	struct TouchData
-	{
-		TouchData() { bIsPressed = false;Location=FVector::ZeroVector;}
-		bool bIsPressed;
-		ETouchIndex::Type FingerIndex;
-		FVector Location;
-		bool bMoved;
-	};
-	void BeginTouch(const ETouchIndex::Type FingerIndex, const FVector Location);
-	void EndTouch(const ETouchIndex::Type FingerIndex, const FVector Location);
-	void TouchUpdate(const ETouchIndex::Type FingerIndex, const FVector Location);
-	TouchData	TouchItem;
 	
+	UCharacterMovementComponent* Movement;
+
+	ACMP302Projectile* SpawnedProjectile;
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 	// End of APawn interface
 
-	/* 
-	 * Configures input for touchscreen devices if there is a valid touch interface for doing so 
-	 *
-	 * @param	InputComponent	The input component pointer to bind controls to
-	 * @returns true if touch controls were enabled.
-	 */
-	bool EnableTouchscreenMovement(UInputComponent* InputComponent);
 
 public:
 	/** Returns Mesh1P subobject **/
