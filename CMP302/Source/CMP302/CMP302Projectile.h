@@ -6,33 +6,42 @@
 #include <GameFramework/Character.h>
 #include "CMP302Projectile.generated.h"
 
-UCLASS(config=Game)
-class ACMP302Projectile : public APawn
+UCLASS()
+class AStaffProjectile : public APawn
 {
 	GENERATED_BODY()
 
 	/** Sphere collision component */
-	UPROPERTY(VisibleDefaultsOnly, Category=Projectile)
-	class USphereComponent* CollisionComp;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile, meta = (AllowPrivateAccess = "true"))
+	class UBoxComponent* CollisionComp;
 
 	/** Projectile movement component */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	class UProjectileMovementComponent* ProjectileMovement;
 
+	/** The power with which the player will be launched into the air upon landing. */
+	UPROPERTY(EditAnywhere, Category = LaunchSettings)
+	float LaunchPower;
+
+	UFUNCTION()
+	void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	virtual void BeginPlay() override;
+
 public:
-	ACMP302Projectile();
+	AStaffProjectile();
 
 	/** called when projectile hits something */
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	/** Returns CollisionComp subobject **/
-	FORCEINLINE class USphereComponent* GetCollisionComp() const { return CollisionComp; }
+	FORCEINLINE class UBoxComponent* GetCollisionComp() const { return CollisionComp; }
 	/** Returns ProjectileMovement subobject **/
 	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
 
-protected:
 	void OnStaffCallBack();
-	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
+
+
 };
 

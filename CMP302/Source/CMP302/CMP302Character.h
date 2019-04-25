@@ -12,7 +12,7 @@
 class UInputComponent;
 
 UCLASS(config=Game)
-class ACMP302Character : public ACharacter
+class AWukong : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -32,7 +32,7 @@ class ACMP302Character : public ACharacter
 
 
 public:
-	ACMP302Character();
+	AWukong();
 
 protected:
 	virtual void BeginPlay();
@@ -64,7 +64,7 @@ public:
 
 	/** Projectile class to spawn */
 	UPROPERTY(EditDefaultsOnly, Category=Projectile)
-	TSubclassOf<class ACMP302Projectile> ProjectileClass;
+	TSubclassOf<class AStaffProjectile> ProjectileClass;
 
 
 
@@ -103,7 +103,7 @@ protected:
 	
 	UCharacterMovementComponent* Movement;
 
-	ACMP302Projectile* SpawnedProjectile;
+	AStaffProjectile* SpawnedProjectile;
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;

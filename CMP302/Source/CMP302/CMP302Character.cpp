@@ -14,7 +14,7 @@ DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 //////////////////////////////////////////////////////////////////////////
 // ACMP302Character
 
-ACMP302Character::ACMP302Character()
+AWukong::AWukong()
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
@@ -53,7 +53,7 @@ ACMP302Character::ACMP302Character()
 
 }
 
-void ACMP302Character::BeginPlay()
+void AWukong::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
@@ -64,7 +64,7 @@ void ACMP302Character::BeginPlay()
 //////////////////////////////////////////////////////////////////////////
 // Input
 
-void ACMP302Character::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
+void AWukong::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	// set up gameplay key bindings
 	check(PlayerInputComponent);
@@ -74,31 +74,31 @@ void ACMP302Character::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	// Bind throw event
-	PlayerInputComponent->BindAction("Fire Staff", IE_Pressed, this, &ACMP302Character::OnThrow);
-	//PlayerInputComponent->BindAction("Call Back Staff", IE_Pressed, this, &ACMP302Character::OnStaffCallBack);
+	PlayerInputComponent->BindAction("Fire Staff", IE_Pressed, this, &AWukong::OnThrow);
+	PlayerInputComponent->BindAction("Call Back Staff", IE_Pressed, this, &AWukong::OnStaffCallBack);
 
 	//Bind launch events
-	PlayerInputComponent->BindAction("Staff Backwards", IE_Pressed, this, &ACMP302Character::OnStaffBackwards);
-	PlayerInputComponent->BindAction("Staff Forwards", IE_Pressed, this, &ACMP302Character::OnStaffForwards);
+	PlayerInputComponent->BindAction("Staff Backwards", IE_Pressed, this, &AWukong::OnStaffBackwards);
+	PlayerInputComponent->BindAction("Staff Forwards", IE_Pressed, this, &AWukong::OnStaffForwards);
 
 	//Bind cloud
-	PlayerInputComponent->BindAction("Cloud", IE_Pressed, this, &ACMP302Character::OnCloud);
+	PlayerInputComponent->BindAction("Cloud", IE_Pressed, this, &AWukong::OnCloud);
 
 	
 	// Bind movement events
-	PlayerInputComponent->BindAxis("MoveForward", this, &ACMP302Character::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &ACMP302Character::MoveRight);
+	PlayerInputComponent->BindAxis("MoveForward", this, &AWukong::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &AWukong::MoveRight);
 
 	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
 	// "turn" handles devices that provide an absolute delta, such as a mouse.
 	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("TurnRate", this, &ACMP302Character::TurnAtRate);
+	PlayerInputComponent->BindAxis("TurnRate", this, &AWukong::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-	PlayerInputComponent->BindAxis("LookUpRate", this, &ACMP302Character::LookUpAtRate);
+	PlayerInputComponent->BindAxis("LookUpRate", this, &AWukong::LookUpAtRate);
 }
 
-void ACMP302Character::OnThrow()
+void AWukong::OnThrow()
 {
 	UWorld* const World = GetWorld();
 	if (IsValid(SpawnedProjectile) || ProjectileClass == NULL || World == NULL) return;
@@ -108,7 +108,7 @@ void ACMP302Character::OnThrow()
 	const FRotator SpawnRotation = GetControlRotation();
 	//// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
 	const FVector SpawnLocation = GetActorLocation()  + SpawnRotation.RotateVector(StaffOffset);
-	SpawnedProjectile = Cast<ACMP302Projectile>(World->SpawnActor(ProjectileClass, &SpawnLocation, &SpawnRotation));
+	SpawnedProjectile = Cast<AStaffProjectile>(World->SpawnActor(ProjectileClass, &SpawnLocation, &SpawnRotation));
 	SpawnedProjectile->GetRootComponent()->ComponentVelocity = SpawnedProjectile->GetRootComponent()->ComponentVelocity + Movement->Velocity;
 	////Set Spawn Collision Handling Override
 	//FActorSpawnParameters ActorSpawnParams;
@@ -119,14 +119,14 @@ void ACMP302Character::OnThrow()
 
 }
 
-void ACMP302Character::OnStaffCallBack()
+void AWukong::OnStaffCallBack()
 {
-	/*if (SpawnedProjectile == NULL) return;
+	if (SpawnedProjectile == NULL) return;
 
-	SpawnedProjectile->Destroy();*/
+	SpawnedProjectile->OnStaffCallBack();
 }
 
-void ACMP302Character::OnStaffForwards()
+void AWukong::OnStaffForwards()
 {
 	
 	UWorld* const World = GetWorld();
@@ -153,7 +153,7 @@ void ACMP302Character::OnStaffForwards()
 	Movement->AddImpulse(impulse);
 }
 
-void ACMP302Character::OnStaffBackwards()
+void AWukong::OnStaffBackwards()
 {
 
 	UWorld* const World = GetWorld();
@@ -184,12 +184,12 @@ void ACMP302Character::OnStaffBackwards()
 }
 
 
-void ACMP302Character::OnCloud()
+void AWukong::OnCloud()
 {
 }
 
 
-void ACMP302Character::MoveForward(float Value)
+void AWukong::MoveForward(float Value)
 {
 	if (Value != 0.0f)
 	{
@@ -198,7 +198,7 @@ void ACMP302Character::MoveForward(float Value)
 	}
 }
 
-void ACMP302Character::MoveRight(float Value)
+void AWukong::MoveRight(float Value)
 {
 	if (Value != 0.0f)
 	{
@@ -207,13 +207,13 @@ void ACMP302Character::MoveRight(float Value)
 	}
 }
 
-void ACMP302Character::TurnAtRate(float Rate)
+void AWukong::TurnAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
-void ACMP302Character::LookUpAtRate(float Rate)
+void AWukong::LookUpAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
