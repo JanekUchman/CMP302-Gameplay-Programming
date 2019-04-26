@@ -68,7 +68,13 @@ public:
 	FVector StaffPosition;
 
 	UPROPERTY(EditAnywhere, BluePrintReadWrite, Category = Staff)
-		bool CanStaffJump;
+	bool CanStaffJump;
+
+	UPROPERTY(EditAnywhere, BluePrintReadWrite, Category = Cloud)
+	bool CanCloudRide;
+
+	UPROPERTY(EditAnywhere, BluePrintReadWrite, Category = Staff)
+	bool CanThrowStaff;
 
 	/** Projectile class to spawn */
 	UPROPERTY(EditDefaultsOnly, Category=Staff)
@@ -91,6 +97,7 @@ protected:
 	void OnStaffForwards();
 
 	void OnStaffCallBack();
+	void LaunchOffStaff(FVector DirectionModifier);
 
 	void OnCloud();
 

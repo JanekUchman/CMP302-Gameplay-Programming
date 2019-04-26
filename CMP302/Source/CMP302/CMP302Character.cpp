@@ -109,10 +109,20 @@ void AWukong::OnStaffCallBack()
 
 void AWukong::OnStaffForwards()
 {
+	LaunchOffStaff(FVector(1, 1, 1));
+}
+
+void AWukong::OnStaffBackwards()
+{
+	LaunchOffStaff(FVector(-1, -1, -1));
+}
+
+void AWukong::LaunchOffStaff(FVector DirectionModifier)
+{
 	
 	UWorld* const World = GetWorld();
 	if (World == NULL || !CanStaffJump) return;
-	const FVector Direction = GetControlRotation().Vector();
+	const FVector Direction = GetControlRotation().Vector() * DirectionModifier;
 
 	const FVector StartLocation = GetActorLocation() + StaffPosition;
 
@@ -134,35 +144,35 @@ void AWukong::OnStaffForwards()
 	Movement->AddImpulse(impulse);
 }
 
-void AWukong::OnStaffBackwards()
-{
-
-	UWorld* const World = GetWorld();
-	if (World == NULL || !CanStaffJump) return;
-
-	const FRotator SpawnRotation = GetControlRotation();
-	FVector Direction = SpawnRotation.Vector();
-
-	const FVector StartLocation = GetActorLocation() + StaffPosition;
-
-	const FVector EndLocation = -Direction * StaffLength + GetActorLocation() + StaffPosition;
-
-	TArray<TEnumAsByte<EObjectTypeQuery>> TraceObjects;
-	TraceObjects.Add(UEngineTypes::ConvertToObjectType(ECC_WorldStatic));
-	TraceObjects.Add(UEngineTypes::ConvertToObjectType(ECC_WorldDynamic));
-	FHitResult FirstHit(ForceInit);
-	TArray<AActor*> ActorsToIgnore;
-	ActorsToIgnore.Add(NULL);
-	if (!UKismetSystemLibrary::LineTraceSingleForObjects(World, StartLocation, EndLocation, TraceObjects, 
-		false, ActorsToIgnore, EDrawDebugTrace::Persistent, FirstHit, true)) return;
-
-
-	FVector impulseAngle =  StartLocation-FirstHit.ImpactPoint;
-	impulseAngle.Normalize();
-	FVector impulse = LaunchVelocity * impulseAngle / (FirstHit.Distance/ StaffLength);
-	Movement->AddImpulse(impulse);
-	
-}
+//void AWukong::OnStaffBackwards()
+//{
+//
+//	/*UWorld* const World = GetWorld();
+//	if (World == NULL || !CanStaffJump) return;
+//
+//	const FRotator SpawnRotation = GetControlRotation();
+//	FVector Direction = SpawnRotation.Vector();
+//
+//	const FVector StartLocation = GetActorLocation() + StaffPosition;
+//
+//	const FVector EndLocation = -Direction * StaffLength + GetActorLocation() + StaffPosition;
+//
+//	TArray<TEnumAsByte<EObjectTypeQuery>> TraceObjects;
+//	TraceObjects.Add(UEngineTypes::ConvertToObjectType(ECC_WorldStatic));
+//	TraceObjects.Add(UEngineTypes::ConvertToObjectType(ECC_WorldDynamic));
+//	FHitResult FirstHit(ForceInit);
+//	TArray<AActor*> ActorsToIgnore;
+//	ActorsToIgnore.Add(NULL);
+//	if (!UKismetSystemLibrary::LineTraceSingleForObjects(World, StartLocation, EndLocation, TraceObjects, 
+//		false, ActorsToIgnore, EDrawDebugTrace::Persistent, FirstHit, true)) return;
+//
+//
+//	FVector impulseAngle =  StartLocation-FirstHit.ImpactPoint;
+//	impulseAngle.Normalize();
+//	FVector impulse = LaunchVelocity * impulseAngle / (FirstHit.Distance/ StaffLength);
+//	Movement->AddImpulse(impulse);*/
+//	
+//}
 
 
 void AWukong::OnCloud()

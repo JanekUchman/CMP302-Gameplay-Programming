@@ -25,8 +25,8 @@ ACloudPlatform::ACloudPlatform()
 	// Use a ProjectileMovementComponent to govern this projectile's movement
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	ProjectileMovement->UpdatedComponent = CollisionComp;
-	ProjectileMovement->InitialSpeed = 1.f;
-	ProjectileMovement->MaxSpeed = 20000.f;
+	ProjectileMovement->InitialSpeed = 100.f;
+	ProjectileMovement->MaxSpeed = 0.f;
 	ProjectileMovement->bRotationFollowsVelocity = false;
 	ProjectileMovement->bShouldBounce = false;
 	ProjectileMovement->ProjectileGravityScale = 0;
@@ -35,7 +35,7 @@ ACloudPlatform::ACloudPlatform()
 
 void ACloudPlatform::AddMomentum(FVector FiringObjectVelocity)
 {
-	ProjectileMovement->Velocity += FiringObjectVelocity;
+	ProjectileMovement->Velocity = FiringObjectVelocity;
 }
 
 
