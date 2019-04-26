@@ -5,23 +5,27 @@
 #include "Components/SphereComponent.h"
 #include <Components/InputComponent.h>
 #include <Components/BoxComponent.h>
+#include <Components/CapsuleComponent.h>
 #include "CMP302Character.h"
 
 AStaffProjectile::AStaffProjectile() 
 {
 	// Use a sphere as a simple collision representation
 	//CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
-	CollisionComp = CreateDefaultSubobject<UBoxComponent>(TEXT("Box Comp"));
+	CollisionComp = CreateDefaultSubobject<UBoxComponent>(TEXT("Root Scene"));
+	/*CollisionComp = NewObject<UCapsuleComponent>(this, FName("Capsule Collider"));
+	CollisionComp->RegisterComponent();
+	this->AddInstanceComponent(CollisionComp);*/
 	CollisionComp->BodyInstance.SetCollisionProfileName("Projectile");
 	// set up a notification for when this component hits something blocking
 	CollisionComp->OnComponentHit.AddDynamic(this, &AStaffProjectile::OnHit);
 	// Players can't walk on it
 	CollisionComp->SetWalkableSlopeOverride(FWalkableSlopeOverride(WalkableSlope_Unwalkable, 0.f));
-	CollisionComp->CanCharacterStepUpOn = ECB_No;
+	CollisionComp->CanCharacterStepUpOn = ECB_Yes;
 	CollisionComp->SetCollisionResponseToAllChannels(ECR_Block);
 	CollisionComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	// Set as root component
-	RootComponent = CollisionComp;
+	//RootComponent = CollisionComp;
 	// Use a ProjectileMovementComponent to govern this projectile's movement
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	ProjectileMovement->UpdatedComponent = CollisionComp;
@@ -63,12 +67,10 @@ void AStaffProjectile::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AA
 	}
 }
 
-void AStaffProjectile::BeginPlay()
+void AStaffProjectile::AddMomentum(FVector FiringObjectVelocity)
 {
-	Super::BeginPlay();
-	SetActorScale3D(FVector(0.1f, 0.1f, 3.0f));
-	CollisionComp = Cast<UBoxComponent>(GetRootComponent());
-	CollisionComp->SetWorldScale3D(FVector(0.1f, 0.1f, 3.0f));
+	ProjectileMovement->Velocity += FiringObjectVelocity;
 }
+
 
 

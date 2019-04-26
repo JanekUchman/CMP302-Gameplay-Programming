@@ -4,15 +4,18 @@
 
 #include "CoreMinimal.h"
 #include <GameFramework/Character.h>
+
+
 #include "CMP302Projectile.generated.h"
 
 UCLASS()
 class AStaffProjectile : public APawn
 {
 	GENERATED_BODY()
+protected:
 
-	/** Sphere collision component */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile, meta = (AllowPrivateAccess = "true"))
+	/** Collision component */
+		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Collider, meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* CollisionComp;
 
 	/** Projectile movement component */
@@ -26,7 +29,6 @@ class AStaffProjectile : public APawn
 	UFUNCTION()
 	void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	virtual void BeginPlay() override;
 
 public:
 	AStaffProjectile();
@@ -41,6 +43,8 @@ public:
 	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
 
 	void OnStaffCallBack();
+
+	void AddMomentum(FVector FiringObjectVelocity);
 
 
 };

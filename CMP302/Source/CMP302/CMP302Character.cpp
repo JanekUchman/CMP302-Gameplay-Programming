@@ -8,12 +8,12 @@
 #include "Components/InputComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "MotionControllerComponent.h"
+#include "CloudPlatform.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
 //////////////////////////////////////////////////////////////////////////
 // ACMP302Character
-
 AWukong::AWukong()
 {
 	// Set size for collision capsule
@@ -29,27 +29,14 @@ AWukong::AWukong()
 	FirstPersonCameraComponent->RelativeLocation = FVector(-39.56f, 1.75f, 64.f); // Position the camera
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 
-	//// Create a mesh component that will be used when being viewed from a '1st person' view (when controlling this pawn)
-	//Mesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh1P"));
-	//Mesh1P->SetOnlyOwnerSee(true);
-	//Mesh1P->SetupAttachment(FirstPersonCameraComponent);
-	//Mesh1P->bCastDynamicShadow = false;
-	//Mesh1P->CastShadow = false;
-	//Mesh1P->RelativeRotation = FRotator(1.9f, -19.19f, 5.2f);
-	//Mesh1P->RelativeLocation = FVector(-0.5f, -4.4f, -155.7f);
-
-	//// Create a gun mesh component
-	//FP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
-	//FP_Gun->SetOnlyOwnerSee(true);			// only the owning player will see this mesh
-	//FP_Gun->bCastDynamicShadow = false;
-	//FP_Gun->CastShadow = false;
-	//// FP_Gun->SetupAttachment(Mesh1P, TEXT("GripPoint"));
-	//FP_Gun->SetupAttachment(RootComponent);
-
-
 	// Default offset from the character location for projectiles to spawn
 	StaffPosition = FVector(0.0f, 0.0f, 60.0f);
 
+	StaffOffset = FVector(40, 0, 0);
+
+	CloudOffset = FVector(0, 0, -60);
+
+	CanStaffJump = true;
 
 }
 
@@ -96,41 +83,35 @@ void AWukong::SetupPlayerInputComponent(class UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAxis("TurnRate", this, &AWukong::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AWukong::LookUpAtRate);
+
 }
 
 void AWukong::OnThrow()
 {
 	UWorld* const World = GetWorld();
-	if (IsValid(SpawnedProjectile) || ProjectileClass == NULL || World == NULL) return;
+	if (IsValid(SpawnedStaff) || StaffClass == NULL || World == NULL) return;
 
 	// try and fire a projectile
 	
 	const FRotator SpawnRotation = GetControlRotation();
 	//// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
-	const FVector SpawnLocation = GetActorLocation()  + SpawnRotation.RotateVector(StaffOffset);
-	SpawnedProjectile = Cast<AStaffProjectile>(World->SpawnActor(ProjectileClass, &SpawnLocation, &SpawnRotation));
-	SpawnedProjectile->GetRootComponent()->ComponentVelocity = SpawnedProjectile->GetRootComponent()->ComponentVelocity + Movement->Velocity;
-	////Set Spawn Collision Handling Override
-	//FActorSpawnParameters ActorSpawnParams;
-	//ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-
-	//// spawn the projectile at the muzzle
-	//World->SpawnActor<ACMP302Projectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
-
+	const FVector SpawnLocation = GetActorLocation() + SpawnRotation.RotateVector(StaffOffset);
+	SpawnedStaff = Cast<AStaffProjectile>(World->SpawnActor(StaffClass, &SpawnLocation, &SpawnRotation));
+	SpawnedStaff->AddMomentum(Movement->Velocity);
 }
 
 void AWukong::OnStaffCallBack()
 {
-	if (SpawnedProjectile == NULL) return;
+	if (SpawnedStaff == NULL) return;
 
-	SpawnedProjectile->OnStaffCallBack();
+	SpawnedStaff->OnStaffCallBack();
 }
 
 void AWukong::OnStaffForwards()
 {
 	
 	UWorld* const World = GetWorld();
-	if (World == NULL) return;
+	if (World == NULL || !CanStaffJump) return;
 	const FVector Direction = GetControlRotation().Vector();
 
 	const FVector StartLocation = GetActorLocation() + StaffPosition;
@@ -157,7 +138,7 @@ void AWukong::OnStaffBackwards()
 {
 
 	UWorld* const World = GetWorld();
-	if (World == NULL) return;
+	if (World == NULL || !CanStaffJump) return;
 
 	const FRotator SpawnRotation = GetControlRotation();
 	FVector Direction = SpawnRotation.Vector();
@@ -186,6 +167,14 @@ void AWukong::OnStaffBackwards()
 
 void AWukong::OnCloud()
 {
+	UWorld* const World = GetWorld();
+	if (CloudPlatformClass == NULL || World == NULL) return;
+
+	// try and fire a projectile
+	const FVector SpawnLocation = GetActorLocation() + CloudOffset;
+
+	SpawnedCloud = Cast<ACloudPlatform>(World->SpawnActor(CloudPlatformClass, &SpawnLocation));
+	SpawnedCloud->AddMomentum(Movement->Velocity);
 }
 
 

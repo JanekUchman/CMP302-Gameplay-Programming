@@ -11,11 +11,12 @@
 
 class UInputComponent;
 
-UCLASS(config=Game)
+UCLASS(config = Game, meta = (ShowOnlyInnerProperties))
+
 class AWukong : public ACharacter
 {
 	GENERATED_BODY()
-
+protected:
 	/** Pawn mesh: 1st person view (arms; seen only by self) */
 	UPROPERTY(VisibleDefaultsOnly, Category=Mesh)
 	class USkeletalMeshComponent* Mesh1P;
@@ -58,13 +59,24 @@ public:
 	UPROPERTY(EditAnywhere, Category = Staff)
 	FVector StaffOffset;
 
+	/** The offset for spawning the staff projectile. */
+	UPROPERTY(EditAnywhere, Category = Cloud)
+	FVector CloudOffset;
+
 	/** Staff's offset from the characters location */
-	UPROPERTY(EditAnywhere, Category=Gameplay)
+	UPROPERTY(EditAnywhere, Category=Staff)
 	FVector StaffPosition;
 
+	UPROPERTY(EditAnywhere, BluePrintReadWrite, Category = Staff)
+		bool CanStaffJump;
+
 	/** Projectile class to spawn */
-	UPROPERTY(EditDefaultsOnly, Category=Projectile)
-	TSubclassOf<class AStaffProjectile> ProjectileClass;
+	UPROPERTY(EditDefaultsOnly, Category=Staff)
+	TSubclassOf<class AStaffProjectile> StaffClass;
+
+	/** Projectile class to spawn */
+	UPROPERTY(EditDefaultsOnly, Category = Cloud)
+	TSubclassOf<class ACloudPlatform> CloudPlatformClass;
 
 
 
@@ -103,7 +115,9 @@ protected:
 	
 	UCharacterMovementComponent* Movement;
 
-	AStaffProjectile* SpawnedProjectile;
+	AStaffProjectile* SpawnedStaff;
+
+	ACloudPlatform* SpawnedCloud;
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
