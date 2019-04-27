@@ -8,7 +8,6 @@
 #include "CMP302Projectile.h"
 #include "CMP302Character.generated.h"
 
-
 class UInputComponent;
 
 UCLASS(config = Game, meta = (ShowOnlyInnerProperties))
@@ -17,26 +16,15 @@ class AWukong : public ACharacter
 {
 	GENERATED_BODY()
 protected:
-	/** Pawn mesh: 1st person view (arms; seen only by self) */
-	UPROPERTY(VisibleDefaultsOnly, Category=Mesh)
-	class USkeletalMeshComponent* Mesh1P;
-
-	/** Gun mesh: 1st person view (seen only by self) */
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	class USkeletalMeshComponent* FP_Gun;
-
 
 	/** First person camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FirstPersonCameraComponent;
-
-
-
 public:
 	AWukong();
 
 protected:
-	virtual void BeginPlay();
+	virtual void BeginPlay() override;
 
 public:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
@@ -59,28 +47,35 @@ public:
 	UPROPERTY(EditAnywhere, Category = Staff)
 	FVector StaffOffset;
 
-	/** The offset for spawning the staff projectile. */
+	/** The offset for spawning the cloud projectile. */
 	UPROPERTY(EditAnywhere, Category = Cloud)
 	FVector CloudOffset;
 
-	/** Staff's offset from the characters location */
+	/** Launching staff offset from the characters location */
 	UPROPERTY(EditAnywhere, Category=Staff)
 	FVector StaffPosition;
 
-	UPROPERTY(EditAnywhere, BluePrintReadWrite, Category = Staff)
-	bool CanStaffJump;
+	/**Whether the staff has been throw or not*/
+	UPROPERTY(EditAnywhere, Category = Staff)
+	bool bStaffThrown;
 
+	/**Can the player jump currently using the staff*/
+	UPROPERTY(EditAnywhere, BluePrintReadWrite, Category = Staff)
+	bool bCanStaffJump;
+
+	/**Can the cloud ride*/
 	UPROPERTY(EditAnywhere, BluePrintReadWrite, Category = Cloud)
-	bool CanCloudRide;
+	bool bCanCloudRide;
 
+	/**Can the player throw the staff*/
 	UPROPERTY(EditAnywhere, BluePrintReadWrite, Category = Staff)
-	bool CanThrowStaff;
+	bool bCanThrowStaff;
 
-	/** Projectile class to spawn */
+	/** Staff projectile class to spawn */
 	UPROPERTY(EditDefaultsOnly, Category=Staff)
 	TSubclassOf<class AStaffProjectile> StaffClass;
 
-	/** Projectile class to spawn */
+	/** Cloud projectile class to spawn */
 	UPROPERTY(EditDefaultsOnly, Category = Cloud)
 	TSubclassOf<class ACloudPlatform> CloudPlatformClass;
 
@@ -88,18 +83,15 @@ public:
 
 
 protected:
-	
-	/** Fires a projectile. */
+	//////////////////
+	//Input
 	void OnThrow();
-
 	void OnStaffBackwards();
-
 	void OnStaffForwards();
-
 	void OnStaffCallBack();
-	void LaunchOffStaff(FVector DirectionModifier);
-
+	void LaunchOffStaff(FVector DirectionModifier) const;
 	void OnCloud();
+	//////////////////
 
 	/** Handles moving forward/backward */
 	void MoveForward(float Val);
@@ -119,23 +111,15 @@ protected:
 	 */
 	void LookUpAtRate(float Rate);
 
-	
+	//A reference to our character's movement as we use it frequently
 	UCharacterMovementComponent* Movement;
 
+	//A reference to the spawned staff projectile as we need to notify it of input
 	AStaffProjectile* SpawnedStaff;
 
+	//A reference to the spawned cloud
 	ACloudPlatform* SpawnedCloud;
 protected:
-	// APawn interface
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
-	// End of APawn interface
-
-
-public:
-	/** Returns Mesh1P subobject **/
-	FORCEINLINE class USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
-	/** Returns FirstPersonCameraComponent subobject **/
-	FORCEINLINE class UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
-
 };
 

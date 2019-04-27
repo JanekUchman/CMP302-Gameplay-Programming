@@ -2,30 +2,24 @@
 
 #include "CMP302Projectile.h"
 #include "GameFramework/ProjectileMovementComponent.h"
-#include "Components/SphereComponent.h"
-#include <Components/InputComponent.h>
 #include <Components/BoxComponent.h>
-#include <Components/CapsuleComponent.h>
 #include "CMP302Character.h"
+#include "TimerManager.h"
+
 
 AStaffProjectile::AStaffProjectile() 
 {
-	// Use a sphere as a simple collision representation
-	//CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
+	//Set a box collision as it's easy for the player to land on and most accuractely represents the staff
 	CollisionComp = CreateDefaultSubobject<UBoxComponent>(TEXT("Root Scene"));
-	/*CollisionComp = NewObject<UCapsuleComponent>(this, FName("Capsule Collider"));
-	CollisionComp->RegisterComponent();
-	this->AddInstanceComponent(CollisionComp);*/
+
 	CollisionComp->BodyInstance.SetCollisionProfileName("Projectile");
-	// set up a notification for when this component hits something blocking
-	CollisionComp->OnComponentHit.AddDynamic(this, &AStaffProjectile::OnHit);
-	// Players can't walk on it
+	// Players can't walk on it as it's just going to bounce them upwards
 	CollisionComp->SetWalkableSlopeOverride(FWalkableSlopeOverride(WalkableSlope_Unwalkable, 0.f));
 	CollisionComp->CanCharacterStepUpOn = ECB_Yes;
+	//Block all channels but pawns, allow overlap to allow for character interaction
 	CollisionComp->SetCollisionResponseToAllChannels(ECR_Block);
 	CollisionComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
-	// Set as root component
-	//RootComponent = CollisionComp;
+
 	// Use a ProjectileMovementComponent to govern this projectile's movement
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	ProjectileMovement->UpdatedComponent = CollisionComp;
@@ -33,35 +27,28 @@ AStaffProjectile::AStaffProjectile()
 	ProjectileMovement->MaxSpeed = 0.f;
 	ProjectileMovement->bRotationFollowsVelocity = false;
 	ProjectileMovement->bShouldBounce = false;
+	//We want the staff to fly accurately towards where the player's directing it
 	ProjectileMovement->ProjectileGravityScale = 0;
 
+	//Set up the collision function with the player
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &AStaffProjectile::BeginOverlap);
 
 	LaunchPower = 1000;
 }
 
-void AStaffProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
-{
-	//// Only add impulse and destroy projectile if we hit a physics
-	//if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) && OtherComp->IsSimulatingPhysics())
-	//{
-	//	OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
-
-	//	Destroy();
-	//}
-}
-
 void AStaffProjectile::OnStaffCallBack()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Your message"));
+	//Simply destroy the staff, given the appearance of recalling it
 	Destroy();
 }
 
 void AStaffProjectile::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	//Check if the collision is with our player
 	AWukong* wukong = Cast<AWukong>(OtherActor);
 	if (wukong != nullptr)
 	{
+		//If it is launch them vertically, maintain their X, Y momentum however
 		const FVector LaunchVelocity = FVector(0, 0, LaunchPower);
 		wukong->LaunchCharacter(LaunchVelocity, false, true);
 	}
@@ -69,7 +56,14 @@ void AStaffProjectile::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AA
 
 void AStaffProjectile::AddMomentum(FVector FiringObjectVelocity)
 {
-	ProjectileMovement->Velocity += FiringObjectVelocity;
+	//Wait a tick then add the player's momentum onto the staff after throwing
+	//Creates a more realistic experience and adds an extra layer of skill
+	Velocity = FiringObjectVelocity;
+	FTimerHandle    handle;
+	GetWorld()->GetTimerManager().SetTimerForNextTick([this]()
+		{
+			ProjectileMovement->Velocity += Velocity;
+		});
 }
 
 

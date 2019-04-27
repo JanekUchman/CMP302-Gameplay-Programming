@@ -20,7 +20,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Collider, meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* CollisionComp;
 
-	/**Collision component */
+	/**Set an arrow component*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Collider, meta = (AllowPrivateAccess = "true"))
 		class UArrowComponent* ArrowComponent;
 
@@ -28,15 +28,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 		class UProjectileMovementComponent* ProjectileMovement;
 
+	//A storage for the desired velocity of the platform after being summoned
+	FVector Velocity;
 
 public:
 
+	//Add momentum to the cloud after spawn
 	void AddMomentum(FVector FiringObjectVelocity);
-
-	/** Returns CollisionComp subobject **/
-	FORCEINLINE class UBoxComponent* GetCollisionComp() const { return CollisionComp; }
-	/** Returns ProjectileMovement subobject **/
-	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
-
-
 };

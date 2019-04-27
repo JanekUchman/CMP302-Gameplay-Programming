@@ -6,22 +6,21 @@
 #include <Components/BoxComponent.h>
 #include <Components/ArrowComponent.h>
 #include <GameFramework/ProjectileMovementComponent.h>
+#include "TimerManager.h"
 
 // Sets default values
 ACloudPlatform::ACloudPlatform()
 {
-	// Use a sphere as a simple collision representation
-	
+	//Set an arrow as the root scene object so the collider can be scaled and rotated directly
 	ArrowComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("Root Scene"));
+	//Box collider for the player to stand on 
 	CollisionComp = CreateDefaultSubobject<UBoxComponent>(TEXT("Collider"));
 	
 	CollisionComp->BodyInstance.SetCollisionProfileName("Projectile");
 
-	CollisionComp->SetWalkableSlopeOverride(FWalkableSlopeOverride(WalkableSlope_Unwalkable, 0.f));
 	CollisionComp->CanCharacterStepUpOn = ECB_Yes;
+	//We want the cloud to appear ethereal and fly through objects
 	CollisionComp->SetCollisionResponseToAllChannels(ECR_Overlap);
-	// Set as root component
-	//RootComponent = CollisionComp;
 	// Use a ProjectileMovementComponent to govern this projectile's movement
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	ProjectileMovement->UpdatedComponent = CollisionComp;
@@ -35,7 +34,14 @@ ACloudPlatform::ACloudPlatform()
 
 void ACloudPlatform::AddMomentum(FVector FiringObjectVelocity)
 {
-	ProjectileMovement->Velocity = FiringObjectVelocity;
+	//Wait a tick then add the player's momentum onto the cloud after summon
+	//Allows the cloud to follow the player's movement 
+	Velocity = FiringObjectVelocity;
+	FTimerHandle    handle;
+	GetWorld()->GetTimerManager().SetTimerForNextTick([this]() 
+		{
+		ProjectileMovement->Velocity = Velocity;
+		});
 }
 
 
