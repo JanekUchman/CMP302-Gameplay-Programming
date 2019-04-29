@@ -11,10 +11,11 @@
 // Sets default values
 ACloudPlatform::ACloudPlatform()
 {
-	//Set an arrow as the root scene object so the collider can be scaled and rotated directly
-	ArrowComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("Root Scene"));
 	//Box collider for the player to stand on 
 	CollisionComp = CreateDefaultSubobject<UBoxComponent>(TEXT("Collider"));
+	//Set an arrow as the root scene object so the collider can be scaled and rotated directly
+	ArrowComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("Root Scene"));
+	
 	
 	CollisionComp->BodyInstance.SetCollisionProfileName("Projectile");
 
@@ -24,7 +25,7 @@ ACloudPlatform::ACloudPlatform()
 	// Use a ProjectileMovementComponent to govern this projectile's movement
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	ProjectileMovement->UpdatedComponent = CollisionComp;
-	ProjectileMovement->InitialSpeed = 100.f;
+	ProjectileMovement->InitialSpeed = 0.f;
 	ProjectileMovement->MaxSpeed = 0.f;
 	ProjectileMovement->bRotationFollowsVelocity = false;
 	ProjectileMovement->bShouldBounce = false;

@@ -24,6 +24,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = LaunchSettings)
 	float LaunchPower;
 
+	//The overlap of the player and the staff
 	UFUNCTION()
 	void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
@@ -31,7 +32,8 @@ protected:
 public:
 	AStaffProjectile();
 
-	void OnStaffCallBack();
+	//What happens when the staff is recalled
+	virtual void OnStaffCallBack();
 
 	void AddMomentum(FVector FiringObjectVelocity);
 };

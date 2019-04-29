@@ -98,9 +98,11 @@ void AWukong::OnThrow()
 	const FRotator SpawnRotation = GetControlRotation();
 	//Get the world space of the staff offset using the character's location
 	const FVector SpawnLocation = GetActorLocation() + SpawnRotation.RotateVector(StaffOffset);
-	SpawnedStaff = Cast<AStaffProjectile>(World->SpawnActor(StaffClass, &SpawnLocation, &SpawnRotation));
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	SpawnedStaff = Cast<AStaffProjectile>(World->SpawnActor(StaffClass, &SpawnLocation, &SpawnRotation, SpawnParams));
 	//Add momentum in the direction the player is moving
-	SpawnedStaff->AddMomentum(Movement->Velocity);
+	if (SpawnedStaff) SpawnedStaff->AddMomentum(Movement->Velocity);
 }
 
 void AWukong::OnStaffCallBack()

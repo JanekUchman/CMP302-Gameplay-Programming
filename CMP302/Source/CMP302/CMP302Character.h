@@ -85,12 +85,12 @@ public:
 protected:
 	//////////////////
 	//Input
-	void OnThrow();
-	void OnStaffBackwards();
-	void OnStaffForwards();
-	void OnStaffCallBack();
-	void LaunchOffStaff(FVector DirectionModifier) const;
-	void OnCloud();
+	virtual void OnThrow();
+	virtual void OnStaffBackwards();
+	virtual void OnStaffForwards();
+	virtual void OnStaffCallBack();
+	virtual void LaunchOffStaff(FVector DirectionModifier) const;
+	virtual void OnCloud();
 	//////////////////
 
 	/** Handles moving forward/backward */
